@@ -41,6 +41,26 @@ def num_cases_on_a_given_date_country_wise(data, given_date, type_of_case, ascen
 
     return countries, case_counts
 
+def current_cases(covid_data, json_url = 'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/world-population-density.json'):
+    # covid_data_by_country = covid_data.groupby(['Country/Region']).sum()
+    dataforMap = []
+    map_data = pd.read_json(json_url)
+    last_date = covid_data['Date'].iloc[-1]
+    last_date_data = covid_data.groupby(['Date', 'Country/Region']).sum().loc[last_date].reset_index()[['Country/Region', 'Confirmed', 'Death', 'Recovered']]
+    for i in last_date_data['Country/Region'].unique():
+        try:
+            tempdf = map_data[map_data['name'] == i]
+            temp = {}
+            temp['code3'] = list(tempdf['code3'].values)[0]
+            temp['name'] = i
+            temp['Confirmed'] = last_date_data[last_date_data['Country/Region']==i]['Confirmed'].values[0]
+            temp['Death'] = last_date_data[last_date_data['Country/Region']==i]['Death'].values[0]
+            temp['Recovered'] = last_date_data[last_date_data['Country/Region']==i]['Recovered'].values[0]
+            temp['code'] = list(tempdf['code'].values)[0]
+            dataforMap.append(temp)
+        except:
+            pass
+    return dataforMap
 
 
 
