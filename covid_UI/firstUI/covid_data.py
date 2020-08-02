@@ -57,10 +57,17 @@ def current_cases(covid_data, json_url = 'https://cdn.jsdelivr.net/gh/highcharts
             temp['Death'] = last_date_data[last_date_data['Country/Region']==i]['Death'].values[0]
             temp['Recovered'] = last_date_data[last_date_data['Country/Region']==i]['Recovered'].values[0]
             temp['code'] = list(tempdf['code'].values)[0]
+            temp['value'] = temp['Confirmed']
             dataforMap.append(temp)
         except:
             pass
     return dataforMap
 
 
-
+def singleCountryData(covid_data, country):
+    country_data = covid_data.groupby(['Country/Region', 'Date']).sum().loc[country, ['Confirmed', 'Death', 'Recovered']]
+    country_conf = country_data['Confirmed'].values.tolist()
+    country_death = country_data['Death'].values.tolist()
+    country_recov = country_data['Recovered'].values.tolist()
+    dates = country_data.index.tolist()
+    return country_conf, country_death, country_recov, dates

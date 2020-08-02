@@ -1,11 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="en">
+    <script src="https://d3js.org/d3.v4.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <script src="https://code.highcharts.com/maps/highmaps.js"></script>
     <script src="https://code.highcharts.com/maps/modules/data.js"></script>
     <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>
     <script src="https://code.highcharts.com/mapdata/custom/world.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <link rel="stylesheet" type="text/css" href="//github.com/downloads/lafeber/world-flags-sprite/flags32.css" />
     <style>
@@ -67,12 +71,16 @@
             <div style="background: black; color: #fff;"><h3>Total Infected - {{total_counts}}</h3></div>
             <div class="col-lg-12" style="float: left;">
                 <div class="col-lg-4" style="float: left;">
-                    {% for country in countries%}
-                    <input type="submit" value={{country}} name="country" style="width:80px;margin-bottom:2px; border-radius: 3px;"><br>
-                    {% endfor %}
+                    <br>
+                    <form method='post' enctype='multipart/form-data' action="singleCountry/">
+                        {% csrf_token %}
+                        {% for country in countries%}
+                        <input type="submit" value={{country}} name="country" style="width:80px;margin-bottom:2px; border-radius: 3px;"><br>
+                        {% endfor %}
+                    </form>
                 </div>
                 <div class="col-lg-8" style="float: left;">
-                    <canvas id="myChart" style="width: 200px;height: 500px;"></canvas>
+                    <canvas id="myChart" style="width: 200px;height: 520px;"></canvas>
                 </div>
             </div>
         </div>
@@ -81,20 +89,22 @@
 
         <div class="col-lg-6" style="float: left;"></div>
         <br><br>
-            <div id="mapChart" style="width:650px; height:450px;"></div>
-
+            <div id="mapChart" style="width:750px; height:550px;margin-left: 20px;"></div>
 
 
         <div class="col-lg-3"></div>
     </div>
-    
+</body>
+
+
+<!-- Bar graph -->
     <script>
         var ctx = document.getElementById('myChart').getContext('2d');
         var chartOptions =
         {
             legend:
             {
-                display: false
+                display: true
             },
             scales:
             {
@@ -132,6 +142,7 @@
         });
     </script>
 
+<!-- Map chart -->
     <script>
         var data2 = {{dataforMap|safe}};
         // document.write({{dataforMap|safe}});
@@ -184,8 +195,7 @@
                 padding: 0,
                 pointFormat: '<span class="f32"><span class="flag {point.properties.hc-key}">' +
                     '</span></span> {point.name}<br>' +
-                    '<span style="font-size:10px">Confirmed / Death / Recovered</span><br>'+
-                    '<span style="font-size:10px">{point.Confirmed} / {point.Death} / {point.Recovered}</span>',
+                    '<span style="font-size:13px; margin-left:20px;"><table rules="all" style="border:1px solid #aaa;"><tr><th>Confirmed</th><th>Death</th><th>Recovered</th></tr><tr><td>{point.Confirmed}</td><td>{point.Death}</td><td>{point.Recovered}</td></tr></table></span>',
                 positioner: function () {
                     return { x: 0, y: -20 };
                 }
@@ -211,5 +221,5 @@
         });
 
     </script>
-</body>
+
 </html>
