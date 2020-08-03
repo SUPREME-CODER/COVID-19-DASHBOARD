@@ -21,8 +21,6 @@ def create_data():
     return covid_data, covid_data.groupby('Date').sum()
 
 
-# covid_data_by_date = covid_data.groupby('Date').sum()
-
 def total_infected(covid_data_by_date):
     return covid_data_by_date.iloc[-1, 2]
 
@@ -30,13 +28,7 @@ def num_cases_on_a_given_date_country_wise(data, type_of_case, ascending=False, 
     data_grouped_by_date_and_country = data.groupby(['Date', 'Country/Region']).sum()
     last_date = data['Date'].iloc[-1]
     data_on_a_date_country_wise = data_grouped_by_date_and_country.loc[last_date, :]
-    # print(data_on_a_date_country_wise)
-    
-    # if ascending:
-    #     data_on_a_date_country_wise = data_on_a_date_country_wise.nsmallest(min(num_countries, len(data_on_a_date_country_wise)), 'Confirmed')
-    # else:
-    #     data_on_a_date_country_wise = data_on_a_date_country_wise.nlargest(min(num_countries, len(data_on_a_date_country_wise)), 'Confirmed')
-    
+
     data_on_a_date_country_wise = data_on_a_date_country_wise.sort_values(by = type_of_case, ascending=False)
     countries = data_on_a_date_country_wise.reset_index()['Country/Region'].values.tolist()
     case_counts = data_on_a_date_country_wise[type_of_case].values.tolist()
@@ -44,7 +36,6 @@ def num_cases_on_a_given_date_country_wise(data, type_of_case, ascending=False, 
     return countries, case_counts
 
 def current_cases(covid_data, json_url = 'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/world-population-density.json'):
-    # covid_data_by_country = covid_data.groupby(['Country/Region']).sum()
     dataforMap = []
     map_data = pd.read_json(json_url)
     last_date = covid_data['Date'].iloc[-1]

@@ -62,13 +62,13 @@
             <div class="col-lg-3" style="float: left;  max-height: 650px;max-width:400px;overflow: scroll; overflow-x:hidden;">
                 <div style="background-color: rgb(41, 41, 40);">
                     
-                    <span style="color: rgb(255, 255, 255); text-align: center;"><h2>Total Infected: {{overallCount}}</h2></span>
+                    <span style="color: rgb(255, 255, 255); text-align: center;"><h2>Total Infected: {{total_count}}</h2></span>
                 </div>
                 <div class="col-lg-12">
                     <form method="post" enctype="multipart/form-data" action="selectCountry">
                     {% csrf_token %}
                     <div class="col-lg-4" style="float: left;">
-                        {% for con in contryNames %}
+                        {% for con in countries %}
                         <table style="border-width: 2px; border: #333;">
                         <tr>
                             <input type="submit" value={{con}} name="countryName" style="width:100px;">
@@ -77,7 +77,7 @@
                         {% endfor %}
                     </div>
                     <div style="float: left;"> 
-                        <canvas id="myChart" style="height: 6650px; width: 280px;"></canvas>
+                        <canvas id="myChart" style="height: 4765px; width: 280px;"></canvas>
                     </div>
                     </form>
                     
@@ -97,6 +97,9 @@
 
         </div>
         <br>
+        <div class='fixed-footer'>
+            Data Sources
+        </div>
         
             
     </body>
@@ -105,37 +108,37 @@
 
     var ctx = document.getElementById('myChart').getContext('2d');
     var chartOptions = {
-                            legend: {
-                                display: false
-                                    },
-                            scales: {
-                                xAxes: [{
-                                    barPercentage:1
-                                    }],
-                                yAxes: [
-                                        // {barPercentage: 1},
-                                        // {gridLines:{drawBorder: false}},
-                                        {ticks: {display:false}},
-                                        // {ticks: {mirror: true}},
-                                        {display: false},
-                                        
-                                        ],
-                            elements: {
-                                rectangle: {
-                                borderSkipped: 'left',
-                                }
-                            }
-                            }
-                        };
+        legend: {
+            display: false
+                },
+        scales: {
+            xAxes: [{
+                barPercentage:1
+                }],
+            yAxes: [
+                    // {barPercentage: 1},
+                    // {gridLines:{drawBorder: false}},
+                    {ticks: {display:false}},
+                    // {ticks: {mirror: true}},
+                    {display: false},
+                    
+                    ],
+        elements: {
+            rectangle: {
+            borderSkipped: 'left',
+            }
+        }
+        }
+    };
     var chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'horizontalBar',
 
         // The data for our dataset
         data: {
-            labels: {{ contryNames|safe }},
+            labels: {{ countries|safe }},
             datasets: [{
-                data: {{ countsVal|safe }},
+                data: {{ case_counts|safe }},
                 label: 'Infected Counts',
                 barThickness:'flex',
                 backgroundColor:'#03a9fc',  
@@ -156,24 +159,24 @@
             legend: {
                 display: true
                     },
-                    scales: {
-						yAxes: [{
-							type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-							display: true,
-							position: 'left',
-							id: 'y-axis-1',
-						}, {
-							type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-							display: true,
-							position: 'right',
-							id: 'y-axis-2',
+            scales: {
+                yAxes: [{
+                    type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                    display: true,
+                    position: 'left',
+                    id: 'y-axis-1',
+                }, {
+                    type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                    display: true,
+                    position: 'right',
+                    id: 'y-axis-2',
 
-							// grid line settings
-							gridLines: {
-								drawOnChartArea: false, // only want the grid lines for one axis to show up
-							},
-						}],
-					},
+                    // grid line settings
+                    gridLines: {
+                        drawOnChartArea: false, // only want the grid lines for one axis to show up
+                    },
+                }],
+            },
         };
     var ctx2 = document.getElementById('lineChart').getContext('2d');  
 	var myLineChart = new Chart(ctx2, {

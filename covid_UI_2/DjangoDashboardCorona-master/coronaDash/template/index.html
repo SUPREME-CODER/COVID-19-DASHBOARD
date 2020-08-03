@@ -15,6 +15,7 @@
 
     <!-- Flag sprites service provided by Martijn Lafeber, https://github.com/lafeber/world-flags-sprite/blob/master/LICENSE -->
     <link rel="stylesheet" type="text/css" href="//github.com/downloads/lafeber/world-flags-sprite/flags32.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
     <style>
@@ -23,6 +24,14 @@
         body{        
             padding-top: 60px;
             padding-bottom: 40px;
+        }
+        .footer
+        {
+            width:100%;
+            background: #333;
+            padding: 10px 0;
+            color: #fff;
+            bottom: 0;
         }
         .fixed-header, .fixed-footer{
             width: 100%;
@@ -47,6 +56,13 @@
             padding: 7px 25px;
             display: inline-block;
         }
+        .data
+        {
+            color:#fff;
+            background-color: black;
+            border-style: #fff solid;
+            border-radius: 40px;
+        }
     </style>
     </head>
     <body>
@@ -54,6 +70,7 @@
             <div class>
                 <nav>
                     <a href="/"><span style="font-size: 40px;">COVID-19 DashBoard</span></a>
+                    <button class='data' style="font-size:40px; float:right; margin-right: 50px;" onclick=" window.open('https://github.com/CSSEGISandData/COVID-19','_blank')"><i class="fa fa-github"> Data Source</i></button>
                 </nav>
             </div>
         </div>
@@ -86,15 +103,12 @@
             <div class="col-lg-6" style="float: left;">
                 <br>
                 <br>
-                <div id="mapChart" style="height: 650px; width: 800px;"></div>
-            </div>
-
+                <div id="mapChart" style="height: 600px; width: 800px;"></div>
             </div>
 
         </div>
         <br>
-      
-            
+
     </body>
 
 <script>
@@ -146,7 +160,7 @@
 });
 </script>
 
-<script>
+<!-- <script>
     var data2={{datasetForLine|safe}};
     var chartOptions2 = {
             legend: {
@@ -160,7 +174,7 @@
             datasets:data2,},
     options: chartOptions2
 });
-</script>
+</script> -->
 <script>
 
 var someDataMap=[{'code3': 'AFG', 'name': 'Afghanistan', 'value': 484, 'code': 'AF'},
