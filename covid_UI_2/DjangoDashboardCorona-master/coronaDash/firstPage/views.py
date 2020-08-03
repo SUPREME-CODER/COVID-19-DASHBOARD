@@ -2,19 +2,45 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import pandas as pd
 import numpy as np
+from . import covid_data
+
 # Create your views here.
+covid_data_df, covid_data_by_date = covid_data.create_data()
 df3=pd.read_json('https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/world-population-density.json')
 
 def index(request):
-    confirmedGlobal=pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv',encoding='utf-8',na_values=None)
+    # confirmedGlobal=pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv',encoding='utf-8',na_values=None)
     # deathGLobal=pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv')
     # recoverGlobal=pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv')
-    uniqueCountryNames=pd.unique(confirmedGlobal['Country/Region'])
-    contryNames,countsVal,logVals,overallCount,dataForMapGraph,maxVal=getBarData(confirmedGlobal,uniqueCountryNames)
-    dataForheatMap,dateCat=getHeatMapData(confirmedGlobal,contryNames)
-    datasetForLine,axisvalues=getLinebarGroupData(confirmedGlobal,uniqueCountryNames)
-    context={'dateCat':dateCat,'dataForheatMap':dataForheatMap,'maxVal':maxVal,'dataForMapGraph':dataForMapGraph,'axisvalues':axisvalues,'datasetForLine':datasetForLine,'uniqueCountryNames':uniqueCountryNames,'contryNames':contryNames,'countsVal':countsVal,'logVals':logVals,'overallCount':overallCount}
-    return render(request,'index.html',context)
+    # uniqueCountryNames=pd.unique(confirmedGlobal['Country/Region'])
+
+    countries, case_counts = covid_data.num_cases_on_a_given_date_country_wise(covid_data_df, type_of_case='Confirmed', ascending=False, num_countries = 188)
+    total_count = covid_data.total_infected(covid_data_by_date)
+    dataForMap = covid_data.current_cases(covid_data_df)
+
+
+    # contryNames,countsVal,logVals,overallCount,dataForMapGraph,maxVal=getBarData(confirmedGlobal,uniqueCountryNames)
+    # dataForheatMap,dateCat=getHeatMapData(confirmedGlobal,contryNames)
+    # datasetForLine,axisvalues=getLinebarGroupData(confirmedGlobal,uniqueCountryNames)
+    # context={'dateCat':dateCat,
+    # 'dataForheatMap':dataForheatMap,
+    # 'maxVal':maxVal,
+    # 'dataForMapGraph':dataForMapGraph,
+    # 'axisvalues':axisvalues,
+    # 'datasetForLine':datasetForLine,
+    # 'uniqueCountryNames':uniqueCountryNames,
+    # 'contryNames':contryNames,
+    # 'countsVal':countsVal,
+    # 'logVals':logVals,
+    # 'overallCount':overallCount}
+
+    data = {'countries':countries,
+        'case_counts':case_counts,
+        'total_count':total_count,
+        'dataForMap':dataForMap,
+        'maxVal':max(case_counts)}
+
+    return render(request,'index.html',data)
     
 
 def getBarData(confirmedGlobal,uniqueCountryNames):
@@ -79,6 +105,9 @@ def getHeatMapData(confirmedGlobal,contryNames):
 def drillDownACountry(request):
     print(request.POST.dict())
     countryName=request.POST.get('countryName')
+
+    country_conf, country_death, country_recov, dates = covid_data.singleCountryData(covid_data_df, countryName)
+
     confirmedGlobal=pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv',encoding='utf-8',na_values=None)
     countryDataSpe=pd.DataFrame(confirmedGlobal[confirmedGlobal['Country/Region']==countryName][confirmedGlobal.columns[4:-1]].sum()).reset_index()
     countryDataSpe.columns=['country','values']
@@ -86,8 +115,8 @@ def drillDownACountry(request):
     countryDataSpe['incrementVal']=countryDataSpe['values']-countryDataSpe['lagVal']
     countryDataSpe['rollingMean']=countryDataSpe['incrementVal'].rolling(window=4).mean()
     countryDataSpe=countryDataSpe.fillna(0)
-    datasetsForLine=[{'yAxisID': 'y-axis-1','label':'Daily Cumulated Data','data':countryDataSpe['values'].values.tolist(),'borderColor':'#03a9fc','backgroundColor':'#03a9fc','fill':'false'},
-                    {'yAxisID': 'y-axis-2','label':'Rolling Mean 4 days','data':countryDataSpe['rollingMean'].values.tolist(),'borderColor':'#fc5203','backgroundColor':'#fc5203','fill':'false'}]
+    datasetsForLine=[{'yAxisID': 'y-axis-1','label':'Daily Confirmed Cases','data':country_conf,'borderColor':'#8000FF','backgroundColor':'#8000FF','fill':'false'},
+                    {'yAxisID': 'y-axis-2','label':'Daily Death Cases','data':country_death,'borderColor':'#fc5203','backgroundColor':'#fc5203','fill':'false'}]
     axisvalues=countryDataSpe.index.tolist()
     uniqueCountryNames=pd.unique(confirmedGlobal['Country/Region'])
     contryNames,countsVal,logVals,overallCount,dataForMapGraph,maxVal=getBarData(confirmedGlobal,uniqueCountryNames)

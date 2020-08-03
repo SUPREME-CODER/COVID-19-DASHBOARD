@@ -54,7 +54,6 @@
             <div class>
                 <nav>
                     <a href="/"><span style="font-size: 40px;">COVID-19 DashBoard</span></a>
-                    
                 </nav>
             </div>
         </div>
@@ -62,13 +61,13 @@
             <div class="col-lg-3" style="float: left;  max-height: 650px;max-width:400px;overflow: scroll; overflow-x:hidden;">
                 <div style="background-color: rgb(41, 41, 40);">
                     
-                    <span style="color: rgb(255, 255, 255); text-align: center;"><h2>Total Infected: {{overallCount}}</h2></span>
+                    <span style="color: rgb(255, 255, 255); text-align: center;"><h2>Total Infected: {{total_count}}</h2></span>
                 </div>
                 <div class="col-lg-12">
                     <form method="post" enctype="multipart/form-data" action="selectCountry">
                     {% csrf_token %}
                     <div class="col-lg-4" style="float: left;">
-                        {% for con in contryNames %}
+                        {% for con in countries %}
                         <table style="border-width: 2px; border: #333;">
                         <tr>
                             <input type="submit" value={{con}} name="countryName" style="width:100px;">
@@ -77,7 +76,7 @@
                         {% endfor %}
                     </div>
                     <div style="float: left;"> 
-                        <canvas id="myChart" style="height: 6650px; width: 280px;"></canvas>
+                        <canvas id="myChart" style="height: 4760px; width: 280px;"></canvas>
                     </div>
                     </form>
                     
@@ -89,27 +88,11 @@
                 <br>
                 <div id="mapChart" style="height: 650px; width: 800px;"></div>
             </div>
-            <div class="col-lg-3" style="float: left;max-width: 300px;  max-height: 650px;overflow: scroll; overflow-x:hidden;">
-                <div style="background-color: rgb(41, 41, 40);">
-                    
-                    <span style="color: rgb(255, 255, 255); text-align: center;"><h2>Last 6 days Counts</h2></span>
-                </div>
-                <div class="col-lg-12">
-                        <div id="heatchart"></div>
-                </div>
-            </div>
-            <!-- <div  style="float: left;  max-height: 650px;max-width:400px;overflow: scroll; overflow-x:hidden;">
-                <br>
-                <div id="heatchart"></div>
-            </div>   -->
+
             </div>
 
         </div>
         <br>
-        
-        <div style="height: 300px;"> 
-            <canvas id="lineChart" style="height: 400px;"></canvas>
-        </div>
       
             
     </body>
@@ -146,9 +129,9 @@
 
         // The data for our dataset
         data: {
-            labels: {{ contryNames|safe }},
+            labels: {{ countries|safe }},
             datasets: [{
-                data: {{ countsVal|safe }},
+                data: {{ case_counts|safe }},
                 label: 'Infected Counts',
                 barThickness:'flex',
                 backgroundColor:'#03a9fc',  
@@ -204,11 +187,14 @@ var someDataMap=[{'code3': 'AFG', 'name': 'Afghanistan', 'value': 484, 'code': '
 		"value": 23.11,
 		"code": "AO"
     }];
- var someData3={{dataForMapGraph|safe}};
+ var someData3={{dataForMap|safe}};
     Highcharts.getJSON('https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/world-population-density.json', function (data) {
 
 // Prevent logarithmic errors in color calulcation
 data.forEach(function (p) {
+    p.Confirmed = (p.Confirmed < 1 ? 1 : p.Confirmed);
+    p.Death = (p.Death < 1 ? 1 : p.Death);
+    p.Recovered = (p.Recovered < 1 ? 1 : p.Recovered);
     p.value = (p.value < 1 ? 1 : p.value);
 });
 
@@ -225,7 +211,7 @@ Highcharts.mapChart('mapChart', {
 
     legend: {
         title: {
-            text: 'Infected Population',
+            text: 'Number of Infected People',
             style: {
                 color: ( // theme
                     Highcharts.defaultOptions &&
@@ -252,9 +238,10 @@ Highcharts.mapChart('mapChart', {
         useHTML: true,
         padding: 0,
         pointFormat: '<span class="f32"><span class="flag {point.properties.hc-key}">' +
-            '</span></span> {point.name}<br>' +'<span><h4>{point.value}</h4></span>',
+                    '</span></span> {point.name}<br>' +
+                    '<span style="font-size:13px; margin-left:20px;"><table rules="all" style="border:3px solid #aaa;"><tr><th>Confirmed</th><th>Death</th><th>Recovered</th></tr><tr><td>{point.Confirmed}</td><td>{point.Death}</td><td>{point.Recovered}</td></tr></table></span>',
         positioner: function () {
-            return { x: 0, y: 250 };
+            return { x: 0, y: 350 };
         }
     },
 
@@ -270,7 +257,7 @@ Highcharts.mapChart('mapChart', {
         name: 'Infected Counts',
         states: {
             hover: {
-                color: '#a4edba'
+                color: 'yellow'
             }
         }
     }]
